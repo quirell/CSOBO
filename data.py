@@ -1,17 +1,26 @@
 __author__ = 'quirell'
-
+# coding=utf-8
 
 import os
+import re
 
 class TestCase:
+    """
+    fullname - nazwa przypadku testowego
+    testname - nazwa grupy do której przypadek testowy należy, więcej tu: http://anjos.mgi.polymtl.ca/qaplib/inst.html
+    value - najlepsza (minimalna) wartość rozwiązania
+    solution - permutacja dla której rozwiązanie przyjmuje najmniejszą wartość
+    distance, flow - wiadomo
+    """
     datapath = ""
     solutionspath = ""
     def __init__(self,name):
-        self.name = name
+        self.fullname = name
+        self.testname = re.match(r"([a-zA-Z]+).*",name).group(1)
         self.value = self.flow = self.distance = self.solution = None
 
     def load(self):
-        with open(TestCase.datapath + "/" + self.name + ".dat") as f:
+        with open(TestCase.datapath + "/" + self.fullname + ".dat") as f:
             self.size = int(f.readline())
             line = "\n"
             while line == "\n":
@@ -29,8 +38,8 @@ class TestCase:
                 line = f.readline()
 
         solution = None
-        if os.path.isfile(TestCase.solutionspath + "/" + self.name + ".sln"):
-            with open(TestCase.solutionspath + "/" + self.name + ".sln") as f:
+        if os.path.isfile(TestCase.solutionspath + "/" + self.fullname + ".sln"):
+            with open(TestCase.solutionspath + "/" + self.fullname + ".sln") as f:
                 line = f.readline()
                 _, self.value = line.split()
                 self.value = int(self.value)
@@ -49,7 +58,7 @@ class TestCase:
         return self.solution is not None
 
     def __str__(self):
-        return self.name + " size: "+self.size+" value: "+self.value
+        return self.fullname + " size: "+self.size+" value: "+self.value
 
 
 

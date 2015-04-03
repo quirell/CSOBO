@@ -1,10 +1,10 @@
 __author__ = 'quirell'
 
-from data import Data,TestCase
+from data import Data
 
-d = Data()
-c = d.gettestcases()
-
+# d = Data()
+# c = d.gettestcases()
+#
 # for x in c:
 #     x.load()
 #     try:
