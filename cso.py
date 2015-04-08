@@ -12,8 +12,28 @@ class Cockroach():
         self.movedfrom = 0
         self.movedto = 0
 
+    #zamienia self.solution[index] = value na solution[value] = index
+    def invert():
+        rev = [0 for _ in xrange(len(self.solution))]
+        for i,v in enumerate(self.solution):
+            rev[v] = i
+        return rev
+
+
     def distance(self, other):
-        return 0
+        sel = copy.copy(self.solution)
+        selr = self.invert()
+        oth =  copy.copy(other.solution)      
+        i = 0
+        end = len(sel) -1
+        while i != end
+            while sel[i] == oth[i]:
+                i += 1
+            j = selr[oth[i]]
+            sel[j],sel[i] = sel[i],sel[j]
+            selr[oth[i]], selr[sel[i]] = i,j
+            i += 1
+        return sol
 
     def __gt__(self, other):
         return self.value > other.value
@@ -23,7 +43,6 @@ class Cockroach():
 
     def __sub__(self, other):
         return self.distance(other)
-
 
     def step(self, bestinstance):
         if self.value != self.bestvisible.value:
