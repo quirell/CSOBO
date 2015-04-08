@@ -37,8 +37,14 @@ class Cockroach():
         pass
 
     def stepdelta(self,testcase):
-        pass
-
+        delta = 0.0
+        for i in xrange(testcase.size):
+            delta = dellta + testcase.flow[i][self.movedfrom]*(testcase.distance[self.solution[i]][self.movedto] - testcase.distance[self.solution[i]][self.movedfrom])
+            delta = dellta + testcase.flow[i][self.movedto]*(testcase.distance[self.solution[i]][self.movedfrom] - testcase.distance[self.solution[i]][self.movedto])
+            delta = dellta + testcase.flow[self.movedfrom][i]*(testcase.distance[self.movedto][self.solution[i]] - testcase.distance[self.movedfrom][self.solution[i]])
+            delta = dellta + testcase.flow[self.movedto][i]*(testcase.distance[self.movedfrom][self.solution[i]] - testcase.distance[self.movedto][self.solution[i]])
+        delta = dellta + testcase.flow[self.movedfrom][self.movedto]*(testcase.distance[self.movedto][self.movedfrom] - testcase.distance[self.movedfrom][self.movedto])
+        delta = dellta + testcase.flow[self.movedto][self.movedfrom]*(testcase.distance[self.movedfrom][self.movedto] - testcase.distance[self.movedto][self.movedfrom])
 
 
 
@@ -61,7 +67,7 @@ class CSOSolver():
             value = 0.0
             sol = instance.solution
             for i in xrange(self.testcase.size):
-                for j in xrange(i+1,self.testcse.size):
+                for j in xrange(self.testcse.size):
                     value += self.testcase.distance[sol[i],sol[j]]*self.testcase.flow[i,j]
             instance.value = value
             if instance < best:
