@@ -50,16 +50,17 @@ class Cockroach():
         self.innerstep(sel,selr,oth,dist)
         return dist.dist
 
-    def inc(self,i,j):
+    def savestep(self,i,j):
         self.movedfrom = i
         self.movedto = j
         return True
 
     def step(self, bestinstance):
+        self.movedfrom = self.movedto = 0
         if self.bestvisible is not None and self.value != self.bestvisible.value:
-            self.innerstep(self.solution,self.invert(),self.bestvisible.solution,self.inc)
+            self.innerstep(self.solution,self.invert(),self.bestvisible.solution,self.savestep)
         else:
-            self.innerstep(self.solution,self.invert(),bestinstance.solution,self.inc)
+            self.innerstep(self.solution,self.invert(),bestinstance.solution,self.savestep)
 
     def randomstep(self):
         self.movedfrom = random.randint(0,len(self.solution)-1)
@@ -152,10 +153,12 @@ class CSOSolver():
             for instance in ckrs:
                 instance.step(best)
                 instance.updatevalue(self.testcase)
+
                 if instance.value < best.value:
                     best = copy.deepcopy(instance)
                 instance.randomstep()
                 instance.updatevalue(self.testcase)
+
 
             ckrs[random.choice(forchoice)] = copy.deepcopy(best)
             print "iter ",iteration," bestval: ",best.value

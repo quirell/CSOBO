@@ -57,8 +57,7 @@ cr.solution[4],cr.solution[8] = cr.solution[8],cr.solution[4]
 assert cr - crcpy == 5
 
 cr = crcpy
-cr.solution[0],cr.solution[1] = cr.solution[1],cr.solution[0]
-cr.movedto = 1
+cr.movedto = 0
 cr.movedfrom = 0
 delta = cr.stepdelta(tc)
 value = cr.value
@@ -75,8 +74,8 @@ for _ in xrange(100):
     valuex = value + delta
     assert valuex == cr.value
 
-solver = CSOSolver(tc,50,10)
-res = solver.solve(500)
+solver = CSOSolver(tc,50,5)
+res = solver.solve(200)
 pprint(res.solution)
 print "val: ",res.value
 pprint(tc.solution)
