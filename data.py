@@ -1,5 +1,5 @@
 __author__ = 'quirell'
-# coding=utf-8
+
 
 import os
 import re
@@ -7,9 +7,9 @@ import re
 class TestCase:
     """
     fullname - nazwa przypadku testowego
-    testname - nazwa grupy do której przypadek testowy należy, więcej tu: http://anjos.mgi.polymtl.ca/qaplib/inst.html
-    value - najlepsza (minimalna) wartość rozwiązania
-    solution - permutacja dla której rozwiązanie przyjmuje najmniejszą wartość
+    testname - nazwa grupy do ktorej przypadek testowy nalezy, wiecej tu: http://anjos.mgi.polymtl.ca/qaplib/inst.html
+    value - najlepsza (minimalna) wartosc rozwiazania
+    solution - permutacja dla ktorej rozwiazanie przyjmuje najmniejsza wartosc
     distance, flow - wiadomo
     """
     datapath = ""
@@ -18,6 +18,7 @@ class TestCase:
         self.fullname = name
         self.testname = re.match(r"([a-zA-Z]+).*",name).group(1)
         self.value = self.flow = self.distance = self.solution = None
+        self.size = 0
 
     def load(self):
         with open(TestCase.datapath + "/" + self.fullname + ".dat") as f:
@@ -27,14 +28,14 @@ class TestCase:
                 line = f.readline()
             flow = []
             for _ in xrange(self.size):
-                flow.append([int(i) for i in line.split() ])
+                flow.append([int(i) for i in line.split()])
                 line = f.readline()
             line = "\n"
             while line == "\n":
                 line = f.readline()
             distance = []
             for _ in xrange(self.size):
-                distance.append(line.split())
+                distance.append([int(i) for i in line.split()])
                 line = f.readline()
 
         solution = None
@@ -52,7 +53,8 @@ class TestCase:
                         solution.extend([int(i.strip()) for i in line.split()])
         self.flow = flow
         self.distance = distance
-        self.solution = solution
+        if solution:
+            self.solution = [i-1 for i in solution]
 
     def solutionavailable(self):
         return self.solution is not None

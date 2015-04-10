@@ -8,12 +8,12 @@ class Cockroach():
     def __init__(self,solution):
         self.value = 0.0
         self.bestvisible = None
-        self.solution = solution
+        self.solution = solution # solution[facility] = location
         self.movedfrom = 0
         self.movedto = 0
 
     #zamienia self.solution[index] = value na solution[value] = index
-    def invert():
+    def invert(self):
         rev = [0 for _ in xrange(len(self.solution))]
         for i,v in enumerate(self.solution):
             rev[v] = i
@@ -23,17 +23,20 @@ class Cockroach():
     def distance(self, other):
         sel = copy.copy(self.solution)
         selr = self.invert()
-        oth =  copy.copy(other.solution)      
+        oth = copy.copy(other.solution)
+        dist = 0
         i = 0
         end = len(sel) -1
-        while i != end
-            while sel[i] == oth[i]:
+        while True:
+            while i != end and sel[i] == oth[i]:
                 i += 1
+            if i == end:
+                break
             j = selr[oth[i]]
             sel[j],sel[i] = sel[i],sel[j]
             selr[oth[i]], selr[sel[i]] = i,j
-            i += 1
-        return sol
+            dist += 1
+        return dist
 
     def __gt__(self, other):
         return self.value > other.value
@@ -53,18 +56,28 @@ class Cockroach():
             pass
 
     def randomstep(self):
-        pass
+        self.movedfrom = random.randint(len(self.solution))
+        self.movedto = random.randint(len(self.solution))
+
 
     def stepdelta(self,testcase):
-        delta = 0.0
-        for i in xrange(testcase.size):
-            delta = dellta + testcase.flow[i][self.movedfrom]*(testcase.distance[self.solution[i]][self.movedto] - testcase.distance[self.solution[i]][self.movedfrom])
-            delta = dellta + testcase.flow[i][self.movedto]*(testcase.distance[self.solution[i]][self.movedfrom] - testcase.distance[self.solution[i]][self.movedto])
-            delta = dellta + testcase.flow[self.movedfrom][i]*(testcase.distance[self.movedto][self.solution[i]] - testcase.distance[self.movedfrom][self.solution[i]])
-            delta = dellta + testcase.flow[self.movedto][i]*(testcase.distance[self.movedfrom][self.solution[i]] - testcase.distance[self.movedto][self.solution[i]])
-        delta = dellta + testcase.flow[self.movedfrom][self.movedto]*(testcase.distance[self.movedto][self.movedfrom] - testcase.distance[self.movedfrom][self.movedto])
-        delta = dellta + testcase.flow[self.movedto][self.movedfrom]*(testcase.distance[self.movedfrom][self.movedto] - testcase.distance[self.movedto][self.movedfrom])
+        delta = 0
+        mtd = self.solution[self.movedto]
+        mfd = self.solution[self.movedfrom]
+        f = testcase.flow
+        d = testcase.distance
 
+        for i in xrange(testcase.size):
+            if i == self.movedfrom or i == self.movedto:
+                continue
+            si = self.solution[i]
+            delta += f[i][self.movedto]*(d[si][mtd] - d[si][mfd])
+            delta += f[self.movedto][i]*(d[mtd][si] - d[mfd][si])
+            delta += f[i][self.movedfrom]*(d[si][mfd] - d[si][mtd])
+            delta += f[self.movedfrom][i]*(d[mfd][si] - d[mtd][si])
+        delta = delta + f[self.movedfrom][self.movedto]*(d[mfd][mtd] - d[mtd][mfd])
+        delta = delta + f[self.movedto][self.movedfrom]*(d[mtd][mfd] - d[mfd][mtd])
+        return delta
 
 
 class CSOSolver():
@@ -76,27 +89,30 @@ class CSOSolver():
 
     def genrandomdata(self):
         base = range(self.testcase.size)
-        data = [Cockroach(random.sample(base)) for _ in self.crnum]
+        data = []
+        for _ in xrange(self.crnum):
+            random.shuffle(base)
+            data.append(Cockroach(copy.copy(base)))
         return data
 
 
     def globalfitness(self,data):
         best = data[0]
         for instance in data:
-            value = 0.0
+            value = 0
             sol = instance.solution
             for i in xrange(self.testcase.size):
-                for j in xrange(self.testcse.size):
-                    value += self.testcase.distance[sol[i],sol[j]]*self.testcase.flow[i,j]
+                for j in xrange(self.testcase.size):
+                    value += self.testcase.distance[sol[i]][sol[j]]*self.testcase.flow[i][j]
             instance.value = value
             if instance < best:
                 best = instance
         return best
 
-    def findbestvisible(self,ckrs):
+    def updatebestvisible(self,ckrs):
         for i in ckrs:
             for j in ckrs:
-                if abs(i, j) < self.horizon and j.value < i.value:
+                if abs(i - j) < self.horizon and j.value < i.value:
                     i.bestvisible = j
 
     def solve(self,iternum):
@@ -106,7 +122,7 @@ class CSOSolver():
         forchoice = range(self.testcase.size)
 
         for iteration in xrange(1,iternum+1):
-            self.findbestvisible(ckrs)
+            self.updatebestvisible(ckrs)
 
             for instance in ckrs:
                 instance.step(best)
