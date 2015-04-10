@@ -84,3 +84,4 @@ print "best val: ",tc.value
 v = res.value
 res.computevalue(tc)
 print v," - ",res.value
+assert v == res.value

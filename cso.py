@@ -38,25 +38,17 @@ class Cockroach():
         sel = copy.copy(self.solution)
         selr = self.invert()
         oth = other.solution
+
         class Dist:
             def __init__(self):
                 self.dist = 0
             def __call__(self, *args, **kwargs):
                 self.dist += 1
                 return False
+
         dist = Dist()
         self.innerstep(sel,selr,oth,dist)
         return dist.dist
-
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __sub__(self, other):
-        return self.distance(other)
 
     def inc(self,i,j):
         self.movedfrom = i
@@ -64,11 +56,10 @@ class Cockroach():
         return True
 
     def step(self, bestinstance):
-        selr = self.invert()
         if self.bestvisible is not None and self.value != self.bestvisible.value:
-            self.innerstep(self.solution,selr,self.bestvisible.solution,self.inc)
+            self.innerstep(self.solution,self.invert(),self.bestvisible.solution,self.inc)
         else:
-            self.innerstep(self.solution,selr,bestinstance.solution,self.inc)
+            self.innerstep(self.solution,self.invert(),bestinstance.solution,self.inc)
 
     def randomstep(self):
         self.movedfrom = random.randint(0,len(self.solution)-1)
@@ -85,20 +76,22 @@ class Cockroach():
         d = testcase.distance
 
         for i in xrange(testcase.size):
-            if i == self.movedfrom or i == self.movedto:
-                continue
-            si = self.solution[i]
-            delta += f[i][self.movedto]*(d[si][mtd] - d[si][mfd])
-            delta += f[self.movedto][i]*(d[mtd][si] - d[mfd][si])
-            delta += f[i][self.movedfrom]*(d[si][mfd] - d[si][mtd])
-            delta += f[self.movedfrom][i]*(d[mfd][si] - d[mtd][si])
+            if i != self.movedfrom and i != self.movedto:
+                si = self.solution[i]
+                delta += f[i][self.movedto]*(d[si][mtd] - d[si][mfd])
+                delta += f[self.movedto][i]*(d[mtd][si] - d[mfd][si])
+                delta += f[i][self.movedfrom]*(d[si][mfd] - d[si][mtd])
+                delta += f[self.movedfrom][i]*(d[mfd][si] - d[mtd][si])
+
         delta = delta + f[self.movedfrom][self.movedto]*(d[mfd][mtd] - d[mtd][mfd])
         delta = delta + f[self.movedto][self.movedfrom]*(d[mtd][mfd] - d[mfd][mtd])
+
         return delta
 
     def updatevalue(self,testcase):
         self.value = self.value + self.stepdelta(testcase)
 
+    #jak updatevalue, ale liczy wartosc od 0 w czasie O(n^2) a nie O(n)
     def computevalue(self,testcase):
         value = 0
         sol = self.solution
@@ -106,6 +99,15 @@ class Cockroach():
             for j in xrange(testcase.size):
                 value += testcase.distance[sol[i]][sol[j]]*testcase.flow[i][j]
         self.value = value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __sub__(self, other):
+        return self.distance(other)
 
 
 class CSOSolver():
@@ -142,7 +144,6 @@ class CSOSolver():
     def solve(self,iternum):
         ckrs = self.genrandomdata()
         best = self.globalfitness(ckrs)
-
         forchoice = range(self.crnum)
 
         for iteration in xrange(1,iternum+1):
@@ -151,16 +152,10 @@ class CSOSolver():
             for instance in ckrs:
                 instance.step(best)
                 instance.updatevalue(self.testcase)
-                # v = instance.value
-                # instance.computevalue(self.testcase)
-                # assert v == instance.value
                 if instance.value < best.value:
                     best = copy.deepcopy(instance)
                 instance.randomstep()
                 instance.updatevalue(self.testcase)
-                # v = instance.value
-                # instance.computevalue(self.testcase)
-                # assert v == instance.value
 
             ckrs[random.choice(forchoice)] = copy.deepcopy(best)
             print "iter ",iteration," bestval: ",best.value
