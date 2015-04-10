@@ -1,3 +1,4 @@
+from pprint import pprint
 
 __author__ = 'quirell'
 
@@ -10,15 +11,13 @@ c = d.gettestcases()
 
 for x in c:
     x.load()
-    try:
-        assert x.size is not None
-        if x.solution is not None:
-            assert x.value is not None
-            assert len(x.solution) == x.size
-        assert len(x.flow) == x.size
-        assert len(x.distance) == x.size
-    except AssertionError:
-        x = 1
+    assert x.size is not None
+    if x.solution is not None:
+        assert x.value is not None
+        assert len(x.solution) == x.size
+    assert len(x.flow) == x.size
+    assert len(x.distance) == x.size
+
 
 for x in c:
     x.load()
@@ -34,27 +33,28 @@ assert cr.value == tc.value
 crcpy = copy.deepcopy(cr)
 crcpy.solution.reverse()
 
-assert cr.distance(crcpy) == tc.size/2
-
-assert cr.distance(cr) == 0
+assert cr - crcpy == tc.size/2
 
 crcpy = copy.deepcopy(cr)
+assert cr - crcpy == 0
+
+
 cr.solution[0],cr.solution[1] = cr.solution[1],cr.solution[0]
 
-assert cr.distance(crcpy) == 1
+assert cr - crcpy == 1
 
 cr.solution[4],cr.solution[6] = cr.solution[6],cr.solution[4]
 
-assert cr.distance(crcpy) == 2
+assert cr - crcpy == 2
 
 cr.solution[2],cr.solution[5] = cr.solution[5],cr.solution[2]
 
-assert cr.distance(crcpy) == 3
+assert cr - crcpy == 3
 
 cr.solution[3],cr.solution[7] = cr.solution[7],cr.solution[3]
 cr.solution[4],cr.solution[8] = cr.solution[8],cr.solution[4]
 
-assert cr.distance(crcpy) == 5
+assert cr - crcpy == 5
 
 cr = crcpy
 cr.solution[0],cr.solution[1] = cr.solution[1],cr.solution[0]
@@ -65,3 +65,22 @@ value = cr.value
 solver.globalfitness([cr])
 value = value + delta
 assert value == cr.value
+
+for _ in xrange(100):
+    cr = crcpy
+    cr.randomstep()
+    delta = cr.stepdelta(tc)
+    value = cr.value
+    solver.globalfitness([cr])
+    valuex = value + delta
+    assert valuex == cr.value
+
+solver = CSOSolver(tc,50,10)
+res = solver.solve(500)
+pprint(res.solution)
+print "val: ",res.value
+pprint(tc.solution)
+print "best val: ",tc.value
+v = res.value
+res.computevalue(tc)
+print v," - ",res.value
