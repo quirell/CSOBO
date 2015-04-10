@@ -20,6 +20,7 @@ class Cockroach():
         return rev
 
 
+    #mozna znacznie przyspieszyc dla duzych instancji dodajac zasieg wzroku karalucha i przerywac po przekroczeniu
     def distance(self, other):
         sel = copy.copy(self.solution)
         selr = self.invert()
@@ -58,7 +59,9 @@ class Cockroach():
     def randomstep(self):
         self.movedfrom = random.randint(len(self.solution))
         self.movedto = random.randint(len(self.solution))
-
+        while self.movedto == self.movedfrom:
+            self.movedto = random.randint(len(self.solution))
+        self.solution[self.movedfrom],self.solution[self.movedto] = self.solution[self.movedto],self.solution[self.movedfrom]
 
     def stepdelta(self,testcase):
         delta = 0
