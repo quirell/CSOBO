@@ -60,7 +60,9 @@ class Cockroach():
         if self.bestvisible is not None and self.value != self.bestvisible.value:
             self.innerstep(self.solution,self.invert(),self.bestvisible.solution,self.savestep)
         else:
-            self.innerstep(self.solution,self.invert(),bestinstance.solution,self.savestep)
+            #to miejsce mnie zastanawia
+        #   self.randomstep()
+           self.innerstep(self.solution,self.invert(),bestinstance.solution,self.savestep)
 
     def randomstep(self):
         self.movedfrom = random.randint(0,len(self.solution)-1)
@@ -68,6 +70,9 @@ class Cockroach():
         while self.movedto == self.movedfrom:
             self.movedto = random.randint(0,len(self.solution)-1)
         self.solution[self.movedfrom],self.solution[self.movedto] = self.solution[self.movedto],self.solution[self.movedfrom]
+
+    def fullrandom(self):
+        random.shuffle(self.solution)
 
     def stepdelta(self,testcase):
         delta = 0
@@ -128,13 +133,13 @@ class CSOSolver():
 
 
     def globalfitness(self,data):
-        best = data[0]
+        localbest = data[0]
         for instance in data:
             instance.computevalue(self.testcase)
-            if instance.value < best.value:
-                best = instance
+            if instance.value < localbest.value:
+                localbest = instance
 
-        return best
+        return localbest
 
     def updatebestvisible(self,ckrs):
         for i in ckrs:
@@ -143,25 +148,83 @@ class CSOSolver():
                     i.bestvisible = j
 
     def solve(self,iternum):
+
+
+        #zaloz gui na wartosc liczbowa
+        stepnumber = 4
+        #zaloz gui na wartosc 1,2
+        random_type = 1
+        #zaloz gui na reshufflowanie
+        bonanza_flag = 1
+        nochange = 0
         ckrs = self.genrandomdata()
         best = self.globalfitness(ckrs)
+        rememberbest = ckrs[0]
         forchoice = range(self.crnum)
 
         for iteration in xrange(1,iternum+1):
-
+            nochange = nochange+1
+            initeration = 0
             self.updatebestvisible(ckrs)
             for instance in ckrs:
-                instance.step(best)
-                instance.updatevalue(self.testcase)
+                initeration = initeration+1
+                #movement towards stronger
+                for x in range(1, stepnumber):
+                    if instance.value != best.value:
+                        instance.step(best)
+                        instance.updatevalue(self.testcase)
+                    else:
+                        instance.randomstep()
+                        instance.updatevalue(self.testcase)
 
                 if instance.value < best.value:
                     best = copy.deepcopy(instance)
-                instance.randomstep()
-                instance.updatevalue(self.testcase)
+                    if best.value  < rememberbest.value:
+                        rememberbest = best
+
+                    print "ding!"
+                    nochange = 0
 
 
-            ckrs[random.choice(forchoice)] = copy.deepcopy(best)
-            print "iter ",iteration," bestval: ",best.value
+                #random movement
+                if random_type == 1:
+                    for x in range(1, stepnumber):
+
+                        instance.randomstep()
+                        instance.updatevalue(self.testcase)
+
+                if random_type == 2:
+                    if initeration == 10:
+                        instance.fullrandom()
+                        instance.computevalue(self.testcase)
+                        initeration = 0
+
+
+                if instance.value < best.value:
+                    best = copy.deepcopy(instance)
+                    if best.value  < rememberbest.value:
+                        rememberbest = best
+                    print "dong!"
+                    nochange = 0
+
+            #be ruthless
+            if iteration % 15==0:
+                ckrs[random.choice(forchoice)] = copy.deepcopy(best)
+
+            #shuffle bonanza!
+            if bonanza_flag == 1:
+                if nochange == iternum/4:
+                    print "bonanza!"
+                    nochange = 0
+                    best = ckrs[0]
+                    for instance in ckrs:
+                        instance.fullrandom()
+                        instance.computevalue(self.testcase)
+
+            if iteration == 1 or iteration % 10==0:
+                print "iter ",iteration," bestval: ",rememberbest.value
+            if(iteration % 5==0):
+               random.shuffle(ckrs)
 
         return best
 

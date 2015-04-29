@@ -75,7 +75,7 @@ for _ in xrange(100):
     assert valuex == cr.value
 
 solver = CSOSolver(tc,50,5)
-res = solver.solve(200)
+res = solver.solve(1500)
 pprint(res.solution)
 print "val: ",res.value
 pprint(tc.solution)
