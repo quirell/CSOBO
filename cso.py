@@ -4,6 +4,18 @@ import random
 import copy
 import pprint
 
+
+class NSteps():
+
+    def __init__(self,steps=2):
+        self.steps = steps
+
+    def __call__(self, *args, **kwargs):
+        self.steps -= 1
+        if self.steps == 0:
+            return True
+        return False
+
 class Cockroach():
     def __init__(self,solution):
         self.value = 0.0
@@ -55,14 +67,16 @@ class Cockroach():
         self.movedto = j
         return True
 
-    def step(self, bestinstance):
+    def step(self, bestinstance,customStepsController = None):
         self.movedfrom = self.movedto = 0
+        if customStepsController == None:
+            customStepsController =self.savestep;
         if self.bestvisible is not None and self.value != self.bestvisible.value:
-            self.innerstep(self.solution,self.invert(),self.bestvisible.solution,self.savestep)
+            self.innerstep(self.solution,self.invert(),self.bestvisible.solution,customStepsController)
         else:
             #to miejsce mnie zastanawia
         #   self.randomstep()
-           self.innerstep(self.solution,self.invert(),bestinstance.solution,self.savestep)
+           self.innerstep(self.solution,self.invert(),bestinstance.solution,customStepsController)
 
     def randomstep(self):
         self.movedfrom = random.randint(0,len(self.solution)-1)
@@ -169,13 +183,12 @@ class CSOSolver():
             for instance in ckrs:
                 initeration = initeration+1
                 #movement towards stronger
-                for x in range(1, stepnumber):
-                    if instance.value != best.value:
-                        instance.step(best)
-                        instance.updatevalue(self.testcase)
-                    else:
-                        instance.randomstep()
-                        instance.updatevalue(self.testcase)
+                # for x in range(1, stepnumber):
+                #     instance.step(best);
+                #     instance.updatevalue(self.testcase)
+                stepController = NSteps(stepnumber);
+                instance.step(best,stepController);
+                instance.computevalue(self.testcase)
 
                 if instance.value < best.value:
                     best = copy.deepcopy(instance)
