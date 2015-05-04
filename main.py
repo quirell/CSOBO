@@ -48,55 +48,60 @@ class App(Tk):
         self.combo_box_test.current(0)
         self.combo_box_test.grid(column=2, row=3)
 
-        self.value1_label = Label(self.input_box, text="Value1")
+        self.value1_label = Label(self.input_box, text="Random type")
         self.value1_label.grid(row=4, column=1)
 
-        self.value2_label = Label(self.input_box, text="Value2")
+        self.value2_label = Label(self.input_box, text="Step number")
         self.value2_label.grid(row=5, column=1)
 
+        self.numberStepNumber = Entry(self.input_box)
+        self.numberStepNumber.grid(row=5, column=2)
+
+        self.var = IntVar()
+        self.reshuffle_cbox = Checkbutton(self.input_box, text="Reshuffle", variable=self.var)
+        self.reshuffle_cbox.grid(row=6, column=1)
+
         self.onButton = Button(self.input_box, command=self.startAction, text="Start")
-        self.onButton.grid(row=6, column=1)
+        self.onButton.grid(row=7, column=1)
         self.offButton = Button(self.input_box, text="Stop", command=self.stopAction)
-        self.offButton.grid(row=6, column=2)
+        self.offButton.grid(row=7, column=2)
 
         self.box_value_value1 = StringVar()
         self.combo_box_value1 = ttk.Combobox(self.input_box, textvariable=self.box_value_value1, height=5)
-        self.combo_box_value1['values'] = value1_list
+        self.combo_box_value1['values'] = [1,2]
         self.combo_box_value1.current(0)
         self.combo_box_value1.grid(column=2, row=4)
 
-        self.box_value_value2 = StringVar()
-        self.combo_box_value2 = ttk.Combobox(self.input_box, textvariable=self.box_value_value2, height=5)
-        self.combo_box_value2['values'] = value2_list
-        self.combo_box_value2.current(0)
-        self.combo_box_value2.grid(column=2, row=5)
 
-        self.figure = Figure(figsize=(7,7), dpi=100)
+        self.figure = Figure(figsize=(8,7), dpi=100)
         self.canvas = FigureCanvasTkAgg(self.figure, self.box)
         self.canvas.get_tk_widget().grid(row=0)
         self.canvas.show()
 
         self.iteration = 0
-        self.iterationList = [0]
-        self.valueList = [0]
+        self.iterationList = []
+        self.valueList = []
 
     def startAction(self):
         try:
             cockroachNumber = int(self.numberOfCockroaches.get())
             horizon = int(self.horizon.get())
             iterations = int(self.numberOfIterations.get())
-            test = self.box_value_test.get()
-            test1 = self.box_value_value1.get()
-            test2 = self.box_value_value2.get()
+            stepNumber = int(self.numberStepNumber.get())
+            randomType = int(self.box_value_value1.get())
+            test_number = self.combo_box_test.current()
+            reshuffle = self.var.get()
             self.t1_stop = threading.Event()
-            self.t1 = threading.Thread(target=otherFunc, args=(self, self.t1_stop))
+            self.t1 = threading.Thread(target=otherFunc, args=(self, self.t1_stop, test_number, cockroachNumber,
+                horizon, iterations, stepNumber, randomType, reshuffle))
             self.t1.start()
-            print cockroachNumber, horizon, iterations, test, test1, test2
+            print cockroachNumber, horizon, iterations, stepNumber, randomType, test_number, reshuffle
         except ValueError:
             print "Cockroaches number and horizon should be numbers"
 
     def stopAction(self):
-        self.t1_stop.set()
+        self.solver.badlookingstop()
+        print "Stopped"
         self.figure.clear()
         self.iteration = 0
         self.iterationList = [0]
@@ -108,19 +113,22 @@ class App(Tk):
         self.valueList.append(value)
         self.figure.clear()
         self.a = self.figure.add_subplot(111)
+        self.a.set_xlabel('Number of iterations divided by 10')
+        self.a.set_ylabel('Best value')
         self.a.plot(self.iterationList, self.valueList)
         self.canvas.show();
 
 
 
-def otherFunc(app, stop):
+def otherFunc(app, stop, test_number, cockroaches, horizon, iterations, sN, rT, r):
     d = data.Data()
     c = d.gettestcases()
     tests = []
     for x in c:
         tests.append(x.fullname)
-    c[10].load()
-    solver = cso.CSOSolver(c[10], 40, 1, 1000, 4, 1, 1, app)
+    c[test_number].load()
+    solver = cso.CSOSolver(c[test_number], cockroaches, horizon, sN, rT, r, iterations, app)
+    app.solver = solver
     solver.solve()
 
 
