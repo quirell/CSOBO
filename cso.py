@@ -132,10 +132,18 @@ class Cockroach():
 
 class CSOSolver():
 
-    def __init__(self,testcase,cockroach_number,horizon=1):
+    def __init__(self,testcase,cockroach_number,horizon,stepnumber, random_type, bonanza_flag,iternum,app):
         self.testcase = testcase
         self.crnum = cockroach_number
         self.horizon = horizon
+        self.stepnumber = stepnumber
+        self.random_type = random_type
+        self.bonanza_flag = bonanza_flag
+        self.iternum = iternum
+        self.app = app
+
+    def badlookingstop(self):
+        self.iternum = 0
 
     def genrandomdata(self):
         base = range(self.testcase.size)
@@ -161,22 +169,22 @@ class CSOSolver():
                 if i - j < self.horizon and j.value < i.value:
                     i.bestvisible = j
 
-    def solve(self,iternum):
+    def solve(self):
 
 
         #zaloz gui na wartosc liczbowa
-        stepnumber = 4
+        stepnumber = self.stepnumber
         #zaloz gui na wartosc 1,2
-        random_type = 1
+        random_type = self.random_type
         #zaloz gui na reshufflowanie
-        bonanza_flag = 1
+        bonanza_flag = self.bonanza_flag
         nochange = 0
         ckrs = self.genrandomdata()
         best = self.globalfitness(ckrs)
         rememberbest = ckrs[0]
         forchoice = range(self.crnum)
 
-        for iteration in xrange(1,iternum+1):
+        for iteration in xrange(1,self.iternum+1):
             nochange = nochange+1
             initeration = 0
             self.updatebestvisible(ckrs)
@@ -226,7 +234,7 @@ class CSOSolver():
 
             #shuffle bonanza!
             if bonanza_flag == 1:
-                if nochange == iternum/4:
+                if nochange == self.iternum/4:
                     print "bonanza!"
                     nochange = 0
                     best = ckrs[0]
@@ -236,6 +244,7 @@ class CSOSolver():
 
             if iteration == 1 or iteration % 10==0:
                 print "iter ",iteration," bestval: ",rememberbest.value
+                self.app.updateInfo(rememberbest.value)
             if(iteration % 5==0):
                random.shuffle(ckrs)
 
