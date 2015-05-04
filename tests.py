@@ -21,7 +21,7 @@ for x in c:
 
 for x in c:
     x.load()
-tc = sorted(c,key = lambda tc:tc.size)[5]
+tc = sorted(c,key = lambda tc:tc.size)[50]
 
 solver = CSOSolver(tc,1)
 cr = Cockroach(copy.copy(tc.solution))
