@@ -14,8 +14,10 @@ matplotlib.use("TkAgg")
 
 class App(Tk):
 
-    def __init__(self, test_list, value1_list, value2_list):
+    def __init__(self, test_list):
         Tk.__init__(self)
+
+        self.event = threading.Event()
         self.geometry("1000x750+0+0")
         self.title("Cockroach genetic algorithm")
 
@@ -83,6 +85,10 @@ class App(Tk):
         self.valueList = []
 
     def startAction(self):
+        self.event.clear()
+        self.iteration = 0
+        self.iterationList = []
+        self.valueList = []
         try:
             cockroachNumber = int(self.numberOfCockroaches.get())
             horizon = int(self.horizon.get())
@@ -91,21 +97,16 @@ class App(Tk):
             randomType = int(self.box_value_value1.get())
             test_number = self.combo_box_test.current()
             reshuffle = self.var.get()
-            self.t1_stop = threading.Event()
-            self.t1 = threading.Thread(target=otherFunc, args=(self, self.t1_stop, test_number, cockroachNumber,
-                horizon, iterations, stepNumber, randomType, reshuffle))
+            self.t1 = threading.Thread(target=otherFunc, args=(self, test_number, cockroachNumber,
+                horizon, iterations, stepNumber, randomType, reshuffle, self.event))
             self.t1.start()
             print cockroachNumber, horizon, iterations, stepNumber, randomType, test_number, reshuffle
         except ValueError:
             print "Cockroaches number and horizon should be numbers"
 
     def stopAction(self):
-        self.solver.badlookingstop()
         print "Stopped"
-        self.figure.clear()
-        self.iteration = 0
-        self.iterationList = [0]
-        self.valueList = [0]
+        self.event.set()
 
     def updateInfo(self, value):
         self.iteration += 1
@@ -120,14 +121,11 @@ class App(Tk):
 
 
 
-def otherFunc(app, stop, test_number, cockroaches, horizon, iterations, sN, rT, r):
+def otherFunc(app, test_number, cockroaches, horizon, iterations, sN, rT, r, event):
     d = data.Data()
     c = d.gettestcases()
-    tests = []
-    for x in c:
-        tests.append(x.fullname)
     c[test_number].load()
-    solver = cso.CSOSolver(c[test_number], cockroaches, horizon, sN, rT, r, iterations, app)
+    solver = cso.CSOSolver(c[test_number], cockroaches, horizon, sN, rT, r, iterations, app, event)
     app.solver = solver
     solver.solve()
 
@@ -138,6 +136,6 @@ if __name__ == '__main__':
     tests = []
     for x in c:
         tests.append(x.fullname)
-    app = App(tests, tests, tests)
+    app = App(tests)
     app.mainloop()
 

@@ -132,7 +132,7 @@ class Cockroach():
 
 class CSOSolver():
 
-    def __init__(self,testcase,cockroach_number,horizon,stepnumber, random_type, bonanza_flag,iternum,app):
+    def __init__(self,testcase,cockroach_number,horizon,stepnumber, random_type, bonanza_flag,iternum,app, event):
         self.testcase = testcase
         self.crnum = cockroach_number
         self.horizon = horizon
@@ -141,6 +141,7 @@ class CSOSolver():
         self.bonanza_flag = bonanza_flag
         self.iternum = iternum
         self.app = app
+        self.event = event
 
     def badlookingstop(self):
         self.iternum = 0
@@ -185,6 +186,8 @@ class CSOSolver():
         forchoice = range(self.crnum)
 
         for iteration in xrange(1,self.iternum+1):
+            if(self.event.is_set()):
+                break
             nochange = nochange+1
             initeration = 0
             self.updatebestvisible(ckrs)
