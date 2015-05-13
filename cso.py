@@ -245,9 +245,10 @@ class CSOSolver():
                         instance.fullrandom()
                         instance.computevalue(self.testcase)
 
-            if iteration == 1 or iteration % 10==0:
-                print "iter ",iteration," bestval: ",rememberbest.value
-                self.app.updateInfo(rememberbest.value)
+            #if iteration == 1 or iteration % 10==0:
+            #narazie komentuje zeby bylo co iteracje
+            print "iter ",iteration," bestval: ",rememberbest.value
+            self.app.updateInfo(rememberbest.value)
             if(iteration % 5==0):
                random.shuffle(ckrs)
 
