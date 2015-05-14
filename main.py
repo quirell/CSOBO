@@ -107,8 +107,8 @@ class App(Tk):
             randomType = self.combo_box_value1.current()
             test_number = self.combo_box_test.current()
             reshuffle = self.var.get()
-            self.t1 = threading.Thread(target=otherFunc, args=(self, test_number + 1, cockroachNumber,
-                horizon, iterations, stepNumber, randomType, reshuffle, self.event))
+            self.t1 = threading.Thread(target=otherFunc, args=(self, test_number, cockroachNumber,
+                horizon, iterations, stepNumber, randomType + 1, reshuffle, self.event))
             self.t1.start()
             print cockroachNumber, horizon, iterations, stepNumber, randomType, test_number, reshuffle
         except ValueError:
