@@ -29,13 +29,19 @@ class TestCase:
             flow = []
             for _ in xrange(self.size):
                 flow.append([int(i) for i in line.split()])
+                while len(flow[-1]) != self.size:
+                    line = f.readline()
+                    flow[-1].extend([int(i) for i in line.split()])
                 line = f.readline()
-            line = "\n"
+            # line = "\n"
             while line == "\n":
                 line = f.readline()
             distance = []
             for _ in xrange(self.size):
                 distance.append([int(i) for i in line.split()])
+                while len(distance[-1]) != self.size:
+                    line = f.readline()
+                    distance[-1].extend([int(i) for i in line.split()])
                 line = f.readline()
 
         solution = None

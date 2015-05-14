@@ -16,7 +16,12 @@ for x in c:
         assert x.value is not None
         assert len(x.solution) == x.size
     assert len(x.flow) == x.size
+    for l in x.flow:
+        assert len(l) == x.size
     assert len(x.distance) == x.size
+    for l in x.distance:
+        assert len(l) == x.size
+
 
 
 for x in c:
