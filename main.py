@@ -8,7 +8,10 @@ from time import sleep
 import random
 import data
 import cso
+from matplotlib import rcParams
 
+
+rcParams.update({'figure.autolayout': True})
 matplotlib.use("TkAgg")
 
 
@@ -16,6 +19,8 @@ class App(Tk):
 
     def __init__(self, test_list):
         Tk.__init__(self)
+        
+        self.savedImages = 1
 
         self.event = threading.Event()
         self.geometry("1200x750+0+0")
@@ -119,7 +124,9 @@ class App(Tk):
         self.event.set()
         
     def saveAction(self):
-        pass
+        print "Saved"
+        self.figure.savefig(str(self.savedImages) + ".jpg")
+        self.savedImages += 1
 
     def updateInfo(self, value):
         self.iteration += 1
