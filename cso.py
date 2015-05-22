@@ -206,7 +206,6 @@ class CSOSolver():
                     if best.value  < rememberbest.value:
                         rememberbest = best
 
-                    print "ding!"
                     nochange = 0
 
 
@@ -228,7 +227,6 @@ class CSOSolver():
                     best = copy.deepcopy(instance)
                     if best.value  < rememberbest.value:
                         rememberbest = best
-                    print "dong!"
                     nochange = 0
 
             #be ruthless
@@ -238,16 +236,12 @@ class CSOSolver():
             #shuffle bonanza!
             if bonanza_flag == 1:
                 if nochange == self.iternum/4:
-                    print "bonanza!"
                     nochange = 0
                     best = ckrs[0]
                     for instance in ckrs:
                         instance.fullrandom()
                         instance.computevalue(self.testcase)
 
-            #if iteration == 1 or iteration % 10==0:
-            #narazie komentuje zeby bylo co iteracje
-            print "iter ",iteration," bestval: ",rememberbest.value
             self.app.updateInfo(rememberbest.value)
             if(iteration % 5==0):
                random.shuffle(ckrs)
