@@ -146,7 +146,7 @@ class App(Tk):
     def stopAction(self):
         print "Stopped"
         self.current = time.clock() - self.current
-        self.time_value.config(text=int(self.current))
+        self.time_value.config(text="{:.3f}".format(self.current))
         self.event.set()
         
     def saveAction(self):
@@ -165,7 +165,7 @@ class App(Tk):
             self.best_iteration = self.iteration
         if self.iterations == self.iteration:
             self.current = time.clock() - self.current
-            self.time_value.config(text=int(self.current))
+            self.time_value.config(text="{:.3f}".format(self.current))
         if value < self.best:
             self.best = value
             self.best_iteration = self.iteration
